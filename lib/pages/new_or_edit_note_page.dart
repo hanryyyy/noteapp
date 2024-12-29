@@ -3,11 +3,11 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:noteapp/change_notifiers/new_note_controller.dart';
 import 'package:noteapp/core/constants.dart';
-import 'package:noteapp/models/note.dart';
 import 'package:provider/provider.dart';
 
 import '../core/dialogs.dart';
 import '../widgets/note_icon_button_outlined.dart';
+import '../widgets/note_metadata.dart';
 import '../widgets/note_toolbar.dart';
 
 class NewOrEditNotePage extends StatefulWidget {
@@ -159,9 +159,9 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                   },
                 ),
               ),
-              // NoteMetadata(
-              //   note: newNoteController.note,
-              // ),
+              NoteMetadata(
+                note: newNoteController.note,
+              ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Divider(color: gray500, thickness: 2),
@@ -192,20 +192,5 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
         ),
       ),
     );
-  }
-}
-
-class NoteMetadata extends StatelessWidget {
-  final Note note;
-
-  const NoteMetadata({
-    required this.note,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Implement your widget build method here
-    return Container(); // Placeholder for actual implementation
   }
 }
