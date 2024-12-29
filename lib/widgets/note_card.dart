@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:intl/intl.dart';
+import 'package:noteapp/change_notifiers/new_note_controller.dart';
+import 'package:noteapp/change_notifiers/notes_provider.dart';
+import 'package:noteapp/core/dialogs.dart';
+import 'package:noteapp/core/utlils.dart';
+import 'package:provider/provider.dart';
 
 import '../core/constants.dart';
+
+import '../enums/order_option.dart';
 import '../models/note.dart';
 import '../pages/new_or_edit_note_page.dart';
 import 'note_tag.dart';
@@ -24,8 +30,11 @@ class NoteCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const NewOrEditNotePage(
-              isNewNote: false,
+            builder: (context) => ChangeNotifierProvider(
+              create: (_) => NewNoteController()..note = note,
+              child: const NewOrEditNotePage(
+                isNewNote: false,
+              ),
             ),
           ),
         );
@@ -91,20 +100,36 @@ class NoteCard extends StatelessWidget {
             if (isInGrid) const Spacer(),
             Row(
               children: [
-                Text(
-                  DateFormat('dd MMM, y').format(
-                      DateTime.fromMicrosecondsSinceEpoch(note.dateCreated)),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: gray500,
+                Selector<NotesProvider, OrderOption>(
+                  selector: (_, notesProvider) => notesProvider.orderBy,
+                  builder: (_, orderBy, __) => Text(
+                    toShortDate(orderBy == OrderOption.dateModified
+                        ? note.dateModified
+                        : note.dateCreated),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: gray500,
+                    ),
                   ),
                 ),
                 const Spacer(),
-                const FaIcon(
-                  FontAwesomeIcons.trash,
-                  color: gray500,
-                  size: 16,
+                GestureDetector(
+                  onTap: () async {
+                    final shouldDelete = await showConfirmationDialog(
+                            context: context,
+                            title: 'Do you want to delete this note?') ??
+                        false;
+
+                    if (shouldDelete && context.mounted) {
+                      context.read<NotesProvider>().deleteNote(note);
+                    }
+                  },
+                  child: const FaIcon(
+                    FontAwesomeIcons.trash,
+                    color: gray500,
+                    size: 16,
+                  ),
                 ),
               ],
             ),

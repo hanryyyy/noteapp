@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:noteapp/change_notifiers/new_note_controller.dart';
 import 'package:noteapp/change_notifiers/notes_provider.dart';
-import 'package:noteapp/core/constants.dart';
 import 'package:noteapp/pages/new_or_edit_note_page.dart';
-import 'package:noteapp/widgets/note_icon_button.dart';
+import 'package:noteapp/widgets/view_options.dart';
 import 'package:provider/provider.dart';
 
 import '../models/note.dart';
@@ -23,14 +22,6 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final List<String> dropdownOptions = ['Date modified', 'Date created'];
-
-  late String dropdownValue = dropdownOptions.first;
-
-  bool isDescending = true;
-
-  bool isGrid = true;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,86 +52,29 @@ class _MainPageState extends State<MainPage> {
       body: Consumer<NotesProvider>(
         builder: (context, notesProvider, child) {
           final List<Note> notes = notesProvider.notes;
-          return notes.isEmpty
+          return notes.isEmpty && notesProvider.searchTerm.isEmpty
               ? const NoNotes()
               : Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     children: [
                       const SearchField(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          children: [
-                            NoteIconButton(
-                              icon: isDescending
-                                  ? FontAwesomeIcons.arrowDown
-                                  : FontAwesomeIcons.arrowUp,
-                              size: 18,
-                              onPressed: () {
-                                setState(() {
-                                  isDescending = !isDescending;
-                                });
-                              },
-                            ),
-                            const SizedBox(width: 16),
-                            DropdownButton<String>(
-                              value: dropdownValue,
-                              icon: const Padding(
-                                padding: EdgeInsets.only(left: 8.0),
-                                child: FaIcon(
-                                  FontAwesomeIcons.arrowDownWideShort,
-                                  size: 18,
-                                  color: gray700,
-                                ),
-                              ),
-                              underline: const SizedBox.shrink(),
-                              borderRadius: BorderRadius.circular(16),
-                              isDense: true,
-                              items: dropdownOptions
-                                  .map(
-                                    (e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Row(
-                                        children: [
-                                          Text(e),
-                                          if (e == dropdownValue) ...[
-                                            const SizedBox(width: 8),
-                                            const Icon(Icons.check),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                              selectedItemBuilder: (context) =>
-                                  dropdownOptions.map((e) => Text(e)).toList(),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  dropdownValue = newValue!;
-                                });
-                              },
-                            ),
-                            const Spacer(),
-                            NoteIconButton(
-                              icon: isGrid
-                                  ? FontAwesomeIcons.tableCellsLarge
-                                  : FontAwesomeIcons.bars,
-                              size: 18,
-                              onPressed: () {
-                                setState(() {
-                                  isGrid = !isGrid;
-                                });
-                              },
-                            ),
-                          ],
+                      if (notes.isNotEmpty) ...[
+                        const ViewOptions(),
+                        Expanded(
+                          child: notesProvider.isGrid
+                              ? NotesGrid(notes: notes)
+                              : NotesList(notes: notes),
                         ),
-                      ),
-                      Expanded(
-                        child: isGrid
-                            ? NotesGrid(notes: notes)
-                            : NotesList(notes: notes),
-                      ),
+                      ] else
+                        const Expanded(
+                          child: Center(
+                            child: Text(
+                              'No notes found for your search query!',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 );

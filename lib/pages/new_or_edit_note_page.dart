@@ -3,14 +3,11 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:noteapp/change_notifiers/new_note_controller.dart';
 import 'package:noteapp/core/constants.dart';
-import 'package:noteapp/widgets/note_metadata.dart';
+import 'package:noteapp/models/note.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/confirmation_dialog.dart';
-import '../widgets/dialog_card.dart';
-
+import '../core/dialogs.dart';
 import '../widgets/note_icon_button_outlined.dart';
-
 import '../widgets/note_toolbar.dart';
 
 class NewOrEditNotePage extends StatefulWidget {
@@ -27,6 +24,7 @@ class NewOrEditNotePage extends StatefulWidget {
 
 class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
   late final NewNoteController newNoteController;
+  late final TextEditingController titleController;
   late final QuillController quillController;
 
   late final FocusNode focusNode;
@@ -36,6 +34,8 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
     super.initState();
 
     newNoteController = context.read<NewNoteController>();
+
+    titleController = TextEditingController(text: newNoteController.title);
 
     quillController = QuillController.basic()
       ..addListener(() {
@@ -50,12 +50,14 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
         newNoteController.readOnly = false;
       } else {
         newNoteController.readOnly = true;
+        quillController.document = newNoteController.content;
       }
     });
   }
 
   @override
   void dispose() {
+    titleController.dispose();
     quillController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -73,9 +75,9 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
           return;
         }
 
-        final bool? shouldSave = await showDialog<bool?>(
+        final bool? shouldSave = await showConfirmationDialog(
           context: context,
-          builder: (_) => const DialogCard(child: ConfirmationDialog()),
+          title: 'Do you want to save the note?',
         );
 
         if (shouldSave == null) return;
@@ -139,6 +141,7 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
               Selector<NewNoteController, bool>(
                 selector: (context, controller) => controller.readOnly,
                 builder: (context, readOnly, child) => TextField(
+                  controller: titleController,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -156,7 +159,9 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                   },
                 ),
               ),
-              NoteMetaData(isNewNote: widget.isNewNote),
+              // NoteMetadata(
+              //   note: newNoteController.note,
+              // ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Divider(color: gray500, thickness: 2),
@@ -187,5 +192,20 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
         ),
       ),
     );
+  }
+}
+
+class NoteMetadata extends StatelessWidget {
+  final Note note;
+
+  const NoteMetadata({
+    required this.note,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Implement your widget build method here
+    return Container(); // Placeholder for actual implementation
   }
 }
