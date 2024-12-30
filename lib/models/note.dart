@@ -7,6 +7,7 @@ class Note {
     required this.contentJson,
     required this.dateCreated,
     required this.dateModified,
+    required this.color,
     required this.tags,
   });
 
@@ -17,6 +18,7 @@ class Note {
   final String contentJson;
   final int dateCreated;
   final int dateModified;
+  final int color;
   final List<String>? tags;
 
   Map<String, dynamic> toMap() {
@@ -28,6 +30,7 @@ class Note {
       'dateCreated': dateCreated,
       'dateModified': dateModified,
       'tags': tags != null ? tags!.join(',') : null,
+      'color': color,
     };
   }
 
@@ -41,6 +44,7 @@ class Note {
       dateCreated: map['dateCreated'],
       dateModified: map['dateModified'],
       tags: map['tags'] != null ? (map['tags'] as String).split(',') : null,
+      color: map['color'],
     );
   }
 }

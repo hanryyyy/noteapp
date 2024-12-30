@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:noteapp/core/utlils.dart';
+import 'package:noteapp/widgets/note_color_assigner.dart';
 import 'package:provider/provider.dart';
 
 import '../change_notifiers/new_note_controller.dart';
@@ -152,6 +153,39 @@ class _NoteMetadataState extends State<NoteMetadata> {
                       ),
               ),
             ),
+            const SizedBox(height: 16),
+          ],
+        ),
+        Row(
+          children: [
+            const Text(
+              'Color',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: gray500,
+              ),
+            ),
+            const SizedBox(width: 8),
+            ...List.generate(NoteColorAssigner.colors.length, (index) {
+              final color = NoteColorAssigner.colors[index];
+              return GestureDetector(
+                onTap: () {
+                  newNoteController.color = index;
+                },
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: newNoteController.color == index
+                        ? Border.all(color: Colors.black, width: 2)
+                        : null,
+                  ),
+                ),
+              );
+            }),
           ],
         ),
       ],

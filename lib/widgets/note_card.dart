@@ -7,6 +7,7 @@ import 'package:noteapp/core/utlils.dart';
 import 'package:noteapp/enums/order_option.dart';
 import 'package:noteapp/models/note.dart';
 import 'package:noteapp/pages/new_or_edit_note_page.dart';
+import 'package:noteapp/widgets/note_color_assigner.dart';
 import 'package:noteapp/widgets/note_tag.dart';
 import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -19,6 +20,8 @@ class NoteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color noteColor = NoteColorAssigner.getColorFromIndex(note.color);
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -87,7 +90,7 @@ class NoteCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: white,
+          color: noteColor,
           border: Border.all(
             color: primary,
             width: 2,

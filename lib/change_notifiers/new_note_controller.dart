@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:noteapp/widgets/note_color_assigner.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +16,7 @@ class NewNoteController extends ChangeNotifier {
     _title = _note!.title ?? '';
     _content = Document.fromJson(jsonDecode(_note!.contentJson));
     _tags.addAll(_note!.tags ?? []);
+    _color = _note!.color;
     notifyListeners();
   }
 
@@ -82,6 +84,14 @@ class NewNoteController extends ChangeNotifier {
     return canSave;
   }
 
+  int _color = 0;
+  int get color => _color;
+
+  set color(int value) {
+    _color = value;
+    notifyListeners();
+  }
+
   Future<void> saveNote(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -105,6 +115,7 @@ class NewNoteController extends ChangeNotifier {
       dateCreated: isNewNote ? now : _note!.dateCreated,
       dateModified: now,
       tags: tags,
+      color: _color,
     );
 
     final notesProvider = context.read<NotesProvider>();
