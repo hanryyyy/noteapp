@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:noteapp/change_notifiers/new_note_controller.dart';
-import 'package:noteapp/core/constants.dart';
 import 'package:provider/provider.dart';
 
+import '../change_notifiers/new_note_controller.dart';
+import '../core/constants.dart';
 import '../core/dialogs.dart';
+import '../widgets/note_back_button.dart';
 import '../widgets/note_icon_button_outlined.dart';
 import '../widgets/note_metadata.dart';
 import '../widgets/note_toolbar.dart';
@@ -92,15 +93,7 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: NoteIconButtonOutlined(
-              icon: FontAwesomeIcons.chevronLeft,
-              onPressed: () {
-                Navigator.maybePop(context);
-              },
-            ),
-          ),
+          leading: const NoteBackButton(),
           title: Text(widget.isNewNote ? 'New Note' : 'Edit Note'),
           actions: [
             Selector<NewNoteController, bool>(
@@ -149,7 +142,7 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
                   decoration: const InputDecoration(
                     hintText: 'Title here',
                     hintStyle: TextStyle(
-                      color: gray300,
+                      color: gray700,
                     ),
                     border: InputBorder.none,
                   ),
@@ -164,7 +157,7 @@ class _NewOrEditNotePageState extends State<NewOrEditNotePage> {
               ),
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(color: gray500, thickness: 2),
+                child: Divider(color: gray700, thickness: 2),
               ),
               Expanded(
                 child: Selector<NewNoteController, bool>(

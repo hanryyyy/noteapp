@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:182026520403:android:72873e08a769c7366603a6",
         "android_client_info": {
-          "package_name": "com.noteapp.example"
+          "package_name": "com.example.noteapp"
         }
       },
       "oauth_client": [],

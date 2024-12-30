@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:noteapp/change_notifiers/new_note_controller.dart';
-import 'package:noteapp/change_notifiers/notes_provider.dart';
-import 'package:noteapp/core/dialogs.dart';
 import 'package:noteapp/core/utlils.dart';
 import 'package:provider/provider.dart';
 
+import '../change_notifiers/new_note_controller.dart';
+import '../change_notifiers/notes_provider.dart';
 import '../core/constants.dart';
+import '../core/dialogs.dart';
 
 import '../enums/order_option.dart';
 import '../models/note.dart';

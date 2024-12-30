@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:noteapp/change_notifiers/new_note_controller.dart';
-import 'package:noteapp/change_notifiers/notes_provider.dart';
-import 'package:noteapp/pages/new_or_edit_note_page.dart';
-import 'package:noteapp/widgets/view_options.dart';
 import 'package:provider/provider.dart';
 
+import '../change_notifiers/new_note_controller.dart';
+import '../change_notifiers/notes_provider.dart';
+import '../core/dialogs.dart';
 import '../models/note.dart';
+import '../services/auth_service.dart';
 import '../widgets/no_notes.dart';
 import '../widgets/note_fab.dart';
 import '../widgets/note_grid.dart';
 import '../widgets/note_icon_button_outlined.dart';
 import '../widgets/notes_list.dart';
 import '../widgets/search_field.dart';
+import '../widgets/view_options.dart';
+import 'new_or_edit_note_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -26,11 +28,18 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Awesome Notes 📒'),
+        title: const Text('Awesome Notes'),
         actions: [
           NoteIconButtonOutlined(
             icon: FontAwesomeIcons.rightFromBracket,
-            onPressed: () {},
+            onPressed: () async {
+              final bool shouldLogout = await showConfirmationDialog(
+                    context: context,
+                    title: 'Do you want to sign out of the app?',
+                  ) ??
+                  false;
+              if (shouldLogout) AuthService.logout();
+            },
           ),
         ],
       ),
