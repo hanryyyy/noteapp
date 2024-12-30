@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:noteapp/change_notifiers/new_note_controller.dart';
+import 'package:noteapp/change_notifiers/notes_provider.dart';
+import 'package:noteapp/core/constants.dart';
+import 'package:noteapp/core/dialogs.dart';
 import 'package:noteapp/core/utlils.dart';
+import 'package:noteapp/enums/order_option.dart';
+import 'package:noteapp/models/note.dart';
+import 'package:noteapp/pages/new_or_edit_note_page.dart';
+import 'package:noteapp/widgets/note_tag.dart';
 import 'package:provider/provider.dart';
-
-import '../change_notifiers/new_note_controller.dart';
-import '../change_notifiers/notes_provider.dart';
-import '../core/constants.dart';
-import '../core/dialogs.dart';
-
-import '../enums/order_option.dart';
-import '../models/note.dart';
-import '../pages/new_or_edit_note_page.dart';
-import 'note_tag.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class NoteCard extends StatelessWidget {
-  const NoteCard({
-    required this.note,
-    required this.isInGrid,
-    super.key,
-  });
-
   final Note note;
   final bool isInGrid;
+
+  NoteCard({required this.note, required this.isInGrid});
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +31,58 @@ class NoteCard extends StatelessWidget {
               ),
             ),
           ),
+        );
+      },
+      onLongPress: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Do you want to delete this note?'),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Text('Edit'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangeNotifierProvider(
+                              create: (_) => NewNoteController()..note = note,
+                              child: const NewOrEditNotePage(
+                                isNewNote: false,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Padding(padding: EdgeInsets.all(8.0)),
+                    GestureDetector(
+                      onTap: () async {
+                        final shouldDelete = await showConfirmationDialog(
+                                context: context,
+                                title: 'Do you want to delete this note?') ??
+                            false;
+
+                        if (shouldDelete && context.mounted) {
+                          context.read<NotesProvider>().deleteNote(note);
+                        }
+                        Navigator.pop(context);
+                      },
+                      child: Row(
+                        children: const [
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
       child: Container(
@@ -61,11 +107,9 @@ class NoteCard extends StatelessWidget {
             if (note.title != null) ...[
               Text(
                 note.title!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: gray900,
                 ),
               ),
@@ -93,8 +137,6 @@ class NoteCard extends StatelessWidget {
                     )
                   : Text(
                       note.content!,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: gray700),
                     ),
             if (isInGrid) const Spacer(),
