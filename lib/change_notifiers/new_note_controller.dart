@@ -1,10 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/note.dart';
 import 'notes_provider.dart';
 
@@ -82,7 +82,13 @@ class NewNoteController extends ChangeNotifier {
     return canSave;
   }
 
-  void saveNote(BuildContext context) {
+  Future<void> saveNote(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not authenticated
+      return;
+    }
+
     final String? newTitle = title.isNotEmpty ? title : null;
     final String? newContent = content.toPlainText().trim().isNotEmpty
         ? content.toPlainText().trim()
@@ -91,6 +97,8 @@ class NewNoteController extends ChangeNotifier {
     final int now = DateTime.now().microsecondsSinceEpoch;
 
     final Note note = Note(
+      noteId: _note?.noteId,
+      userId: user.uid,
       title: newTitle,
       content: newContent,
       contentJson: contentJson,
@@ -100,6 +108,15 @@ class NewNoteController extends ChangeNotifier {
     );
 
     final notesProvider = context.read<NotesProvider>();
-    isNewNote ? notesProvider.addNote(note) : notesProvider.updateNote(note);
+    final firestore = FirebaseFirestore.instance;
+
+    if (isNewNote) {
+      final docRef = await firestore.collection('notes').add(note.toMap());
+      note.noteId = docRef.id;
+      notesProvider.addNote(note);
+    } else {
+      await firestore.collection('notes').doc(note.noteId).update(note.toMap());
+      notesProvider.updateNote(note);
+    }
   }
 }

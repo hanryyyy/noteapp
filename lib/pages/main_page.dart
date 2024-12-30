@@ -79,7 +79,7 @@ class _MainPageState extends State<MainPage> {
                         const Expanded(
                           child: Center(
                             child: Text(
-                              'No notes found for your search query!',
+                              'Keyword not found!',
                               textAlign: TextAlign.center,
                             ),
                           ),

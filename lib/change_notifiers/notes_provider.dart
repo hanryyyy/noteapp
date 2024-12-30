@@ -1,28 +1,61 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../enums/order_option.dart';
 import '../models/note.dart';
 
-extension ListExtension on List<String> {
-  bool deepContains(String term) =>
-      contains(term) || any((element) => element.contains(term));
-}
+// extension ListExtension on List<String> {
+//   bool deepContains(String term) =>
+//       contains(term) || any((element) => element.contains(term));
+// }
 
-class NotesProvider extends ChangeNotifier {
-  final List<Note> _notes = [];
+class NotesProvider with ChangeNotifier {
+  List<Note> _notes = [];
 
-  List<Note> get notes =>
-      [..._searchTerm.isEmpty ? _notes : _notes.where(_test)]..sort(_compare);
+  List<Note> get notes {
+    final filteredNotes = _searchTerm.isEmpty
+        ? _notes
+        : _notes.where((note) {
+            final title = note.title?.toLowerCase() ?? '';
+            final content = note.content?.toLowerCase() ?? '';
+            final searchTerm = _searchTerm.toLowerCase();
+            return title.contains(searchTerm) || content.contains(searchTerm);
+          }).toList();
 
-  bool _test(Note note) {
-    final term = _searchTerm.toLowerCase().trim();
-    final title = note.title?.toLowerCase() ?? '';
-    final content = note.content?.toLowerCase() ?? '';
-    final tags = note.tags?.map((e) => e.toLowerCase()).toList() ?? [];
-    return title.contains(term) ||
-        content.contains(term) ||
-        tags.deepContains(term);
+    filteredNotes.sort(_compare);
+    return filteredNotes;
   }
+
+  Future<void> fetchNotes() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not authenticated
+      return;
+    }
+
+    final firestore = FirebaseFirestore.instance;
+    final querySnapshot = await firestore
+        .collection('notes')
+        .where('userId', isEqualTo: user.uid)
+        .get();
+
+    _notes = querySnapshot.docs
+        .map((doc) => Note.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+
+    notifyListeners();
+  }
+
+  // bool _test(Note note) {
+  //   final term = _searchTerm.toLowerCase().trim();
+  //   final title = note.title?.toLowerCase() ?? '';
+  //   final content = note.content?.toLowerCase() ?? '';
+  //   final tags = note.tags?.map((e) => e.toLowerCase()).toList() ?? [];
+  //   return title.contains(term) ||
+  //       content.contains(term) ||
+  //       tags.deepContains(term);
+  // }
 
   int _compare(Note note1, note2) {
     return _orderBy == OrderOption.dateModified
@@ -40,14 +73,17 @@ class NotesProvider extends ChangeNotifier {
   }
 
   void updateNote(Note note) {
-    final index =
-        _notes.indexWhere((element) => element.dateCreated == note.dateCreated);
-    _notes[index] = note;
-    notifyListeners();
+    final index = _notes.indexWhere((n) => n.noteId == note.noteId);
+    if (index != -1) {
+      _notes[index] = note;
+      notifyListeners();
+    }
   }
 
-  void deleteNote(Note note) {
-    _notes.remove(note);
+  Future<void> deleteNote(Note note) async {
+    final firestore = FirebaseFirestore.instance;
+    await firestore.collection('notes').doc(note.noteId).delete();
+    _notes.removeWhere((n) => n.noteId == note.noteId);
     notifyListeners();
   }
 
