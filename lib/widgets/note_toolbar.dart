@@ -112,6 +112,12 @@ class NoteToolbar extends StatelessWidget {
                   iconData: FontAwesomeIcons.listUl,
                 ),
               ),
+              QuillToolbarToggleCheckListButton(
+                controller: controller,
+                options: const QuillToolbarToggleCheckListButtonOptions(
+                  iconData: FontAwesomeIcons.checkSquare,
+                ),
+              ),
               QuillToolbarSearchButton(
                 controller: controller,
                 options: const QuillToolbarSearchButtonOptions(
