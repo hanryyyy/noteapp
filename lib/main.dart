@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => RegistrationController()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Awesome Notes',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: primary),

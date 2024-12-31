@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:noteapp/widgets/note_color_assigner.dart';
+
 import 'package:provider/provider.dart';
 
 import '../change_notifiers/new_note_controller.dart';

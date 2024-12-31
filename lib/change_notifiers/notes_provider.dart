@@ -1,22 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:noteapp/widgets/tag_filter.dart';
 
 import '../enums/order_option.dart';
 import '../models/note.dart';
 
-// extension ListExtension on List<String> {
-//   bool deepContains(String term) =>
-//       contains(term) || any((element) => element.contains(term));
-// }
-
 class NotesProvider with ChangeNotifier {
   List<Note> _notes = [];
+  List<Note> _filteredNotes = [];
+  List<String> _selectedTags = [];
+  final TagFilter _tagFilter = TagFilter();
 
   List<Note> get notes {
     final filteredNotes = _searchTerm.isEmpty
-        ? _notes
-        : _notes.where((note) {
+        ? _filteredNotes.isNotEmpty
+            ? _filteredNotes
+            : _notes
+        : (_filteredNotes.isNotEmpty ? _filteredNotes : _notes).where((note) {
             final title = note.title?.toLowerCase() ?? '';
             final content = note.content?.toLowerCase() ?? '';
             final searchTerm = _searchTerm.toLowerCase();
@@ -47,16 +48,6 @@ class NotesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // bool _test(Note note) {
-  //   final term = _searchTerm.toLowerCase().trim();
-  //   final title = note.title?.toLowerCase() ?? '';
-  //   final content = note.content?.toLowerCase() ?? '';
-  //   final tags = note.tags?.map((e) => e.toLowerCase()).toList() ?? [];
-  //   return title.contains(term) ||
-  //       content.contains(term) ||
-  //       tags.deepContains(term);
-  // }
-
   int _compare(Note note1, note2) {
     return _orderBy == OrderOption.dateModified
         ? _isDescending
@@ -86,6 +77,14 @@ class NotesProvider with ChangeNotifier {
     _notes.removeWhere((n) => n.noteId == note.noteId);
     notifyListeners();
   }
+
+  void filterByTags(List<String> tags) {
+    _selectedTags = tags;
+    _filteredNotes = _tagFilter.filterByTags(_notes, tags);
+    notifyListeners();
+  }
+
+  List<String> get selectedTags => _selectedTags;
 
   OrderOption _orderBy = OrderOption.dateModified;
   set orderBy(OrderOption value) {
